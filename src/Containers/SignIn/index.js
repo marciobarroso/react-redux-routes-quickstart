@@ -1,52 +1,32 @@
 import React, {Component} from 'react'
 import {Redirect} from 'react-router'
+import axios from 'axios'
+import SignInForm from '../../Components/SignInForm'
 
 export default class SignIn extends Component {
     constructor(props) {
         super(props)
-        this.handleOnChangeEventFromFields = this.handleOnChangeEventFromFields.bind(this)
-        this.handleOnSubmitFormEvent = this.handleOnSubmitFormEvent.bind(this)
-    }
-
-    handleOnChangeEventFromFields(event) {
-        let currentState = {...this.state}
-        currentState[event.target.name] = event.target.value
-        this.setState(currentState)
-    }
-
-    handleOnSubmitFormEvent() {
-        console.log('on Submit')
-
-        // hardcoded just for test
-        const username = 'marcio'
-        const password = '123456'
-
-        if( this.state.username === username && this.state.password === password ) {
-            console.log('setting auth data')
-            localStorage.setItem('username', username)
-            localStorage.setItem('authenticated', true)
-            return <Redirect to='/' />
+        this.state = {
+            status: 'initial'
         }
     }
 
+    // this business rule will be provided by a backend service
+    onSubmit(values) {
+        axios.post('http://localhost:3000/auth', values)
+            .then(result => {
+                localStorage.setObject('user', result.data)
+                this.setState({status: 'success'})
+            }).catch(() => {
+                localStorage.clear()
+                this.setState({status: 'error'})
+            })
+    }
+
     render() {
-        return (
-            <div className='sign-in'>
-                <div className='form-title'>
-                    Register
-                </div>
-                <div className='form-container'>
-                    <label htmlFor='username'>Username</label>
-                    <input type='text' name='username' onChange={this.handleOnChangeEventFromFields} />
-                </div>
-                <div className='form-container'>
-                    <label htmlFor='password'>Password</label>
-                    <input type='password' name='password' onChange={this.handleOnChangeEventFromFields} />
-                </div>
-                <div className='form-container'>
-                    <button onClick={this.handleOnSubmitFormEvent}>Register</button>
-                </div>
-            </div>
-        )
+        if (this.state.status === 'success')
+            return <Redirect to='/'/>
+        else
+            return <SignInForm onSubmit={this.onSubmit.bind(this)}/>
     }
 }
