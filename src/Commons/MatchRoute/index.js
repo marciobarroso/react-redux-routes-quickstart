@@ -35,8 +35,6 @@ export default class MatchRoute extends Component {
     }
 
     render() {
-        console.log('MatchRoute Render')
-        console.log(this.state)
         if( this.state.isAuthenticationNeeded ) {
             if( this.state.hasPermission ) {
                 const Layout = this.state.layout
