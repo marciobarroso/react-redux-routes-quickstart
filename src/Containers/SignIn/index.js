@@ -15,7 +15,7 @@ export default class SignIn extends Component {
     onSubmit(values) {
         axios.post('http://localhost:3000/auth', values)
             .then(result => {
-                localStorage.setObject('user', result.data)
+                localStorage.setItem('token', result.data.token)
                 this.setState({status: 'success'})
             }).catch(() => {
                 localStorage.clear()

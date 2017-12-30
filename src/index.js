@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import {BrowserRouter, Switch, Route} from 'react-router-dom'
+import axios from 'axios'
 
 // redux stuffs
 import { Provider } from 'react-redux'
@@ -37,8 +38,8 @@ const routes = (
                 <MatchRoute exact path='/user' component={() => <div>User Profile</div>} layout={EmptyLayout} roles={['user']} />
                 <Route exact path='/sign-in' component={SignIn} />
                 <Route exact path='/sign-out' render={signOut} />
-                <MatchRoute exact path='/403' component={() => <div>Access Denied. <a href='/sign-in'>Sign-In</a></div>} layout={EmptyLayout} />
-                <MatchRoute exact path='/404' component={() => <div>Page Not Found</div>} layout={EmptyLayout} />
+                <Route exact path='/403' component={() => <div>Access Denied. <a href='/sign-in'>Sign-In</a></div>} />
+                <Route exact path='/404' component={() => <div>Page Not Found</div>} />
                 <MatchRoute path='*' component={() => <div>Not Found</div>} layout={EmptyLayout} />
             </Switch>
         </BrowserRouter>
@@ -57,5 +58,14 @@ if ( !Storage.prototype.getObject ) {
         return value && JSON.parse(value);
     }
 }
+
+axios.interceptors.request.use(config => {
+    if( config && localStorage.token ) {
+        config.headers = {
+            Authorization: localStorage.token
+        }
+    }
+    return config
+})
 
 ReactDOM.render(routes, root)

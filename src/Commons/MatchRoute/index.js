@@ -2,24 +2,41 @@ import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {Route} from 'react-router'
 import {Redirect} from 'react-router-dom'
+import axios from 'axios'
 
 export default class MatchRoute extends Component {
     constructor(props){
         super(props)
 
-        const user = localStorage.getObject('user')
-
         this.state = {
             layout: props.layout,
             component: props.component,
             roles: props.roles,
-            user: user,
+            user: undefined,
             isAuthenticationNeeded: props.roles.length > 0,
-            hasPermission: this.props.roles.filter(role => user.roles.includes(role)).length > 0
+            hasPermission: false
         }
     }
 
+    componentWillMount() {
+        axios.get('http://localhost:3000/auth')
+            .then(result => {
+                const user = result.data
+                localStorage.setObject('user', user)
+                const hasPermission = this.state.roles.filter(role => user.roles.includes(role)).length > 0
+                this.setState({
+                    ...this.state,
+                    user: user,
+                    hasPermission: hasPermission
+                })
+            }).catch(error => {
+                console.log('error ' + error)
+            })
+    }
+
     render() {
+        console.log('MatchRoute Render')
+        console.log(this.state)
         if( this.state.isAuthenticationNeeded ) {
             if( this.state.hasPermission ) {
                 const Layout = this.state.layout
